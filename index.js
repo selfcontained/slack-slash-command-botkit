@@ -26,7 +26,8 @@ beepboop.on('add_resource', function (message) {
     return
   }
 
-  console.log('loading team info for new resource: ', resource)
+  console.log('loading team info for new resource: ', resource.worker)
+  console.log('api: ', resource.worker.api)
   // Fill botkit's storage w/ corresponding team info
   resource.worker.api.team.info({}, function (err, response) {
     if (err) {
