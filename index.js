@@ -60,6 +60,8 @@ controller.setupWebserver(PORT, function (err, webserver) {
 })
 
 controller.on('slash_command', function (bot, message) {
+  console.log('slash command: ', message)
+
   switch (message.command) {
     case 'beepboop':
       var response = 'boopbeep'
