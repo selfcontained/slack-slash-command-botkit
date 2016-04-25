@@ -5,7 +5,9 @@ var morgan = require('morgan')
 var PORT = process.env.PORT || 8080
 
 var controller = botkit.slackbot()
-var beepboop = require('beepboop-botkit').start(controller)
+var beepboop = require('beepboop-botkit').start(controller, {
+  debug: true
+})
 
 // This is for populating botkit's storage w/ the corresponding team info so slash commands work
 // Once a bot scales beyond 1 process this approach has some limitations
