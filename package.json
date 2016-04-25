@@ -1,0 +1,31 @@
+{
+  "name": "slack-slash-command-botkit",
+  "version": "1.0.0",
+  "description": "Slack Slash Command w/ Botkit on Beep Boop",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js",
+    "test": "standard"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/selfcontained/slack-slash-command-botkit.git"
+  },
+  "keywords": [
+    "slack",
+    "botkit",
+    "beepboop"
+  ],
+  "author": "Brad Harris",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/selfcontained/slack-slash-command-botkit/issues"
+  },
+  "dependencies": {
+    "botkit": "^0.1.1",
+    "morgan": "^1.7.0"
+  },
+  "devDependencies": {
+    "standard": "^6.0.8"
+  }
+}

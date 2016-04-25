@@ -1,0 +1,4 @@
+name: Sample Slack Slash Command
+description: Slack Slash Command w/ Botkit on Beep Boop
+slackscopes:
+  - commands
