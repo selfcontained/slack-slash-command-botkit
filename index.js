@@ -13,6 +13,7 @@ var beepboop = require('beepboop-botkit').start(controller, {
 // Once a bot scales beyond 1 process this approach has some limitations
 beepboop.on('add_resource', function (message) {
   var slackTeamId = message.resource.SlackTeamID
+  console.log('team %s added, storing in botkit storage...', slackTeamId)
 
   // Get a handle on the team's botkit worker/bot
   var resource = Object.keys(beepboop.workers).filter(function (entry) {
@@ -23,6 +24,7 @@ beepboop.on('add_resource', function (message) {
     return
   }
 
+  console.log('loading team info for new resource: ', resource)
   // Fill botkit's storage w/ corresponding team info
   resource.worker.api.team.info({}, function (err, response) {
     if (err) {
