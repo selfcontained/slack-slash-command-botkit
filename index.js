@@ -63,7 +63,7 @@ controller.on('slash_command', function (bot, message) {
   console.log('slash command: ', message)
 
   switch (message.command) {
-    case 'beepboop':
+    case '/beepboop':
       var response = 'boopbeep'
 
       bot.replyPublic(message, response)
