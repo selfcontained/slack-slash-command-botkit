@@ -9,44 +9,6 @@ var beepboop = require('beepboop-botkit').start(controller, {
   debug: true
 })
 
-// This is for populating botkit's storage w/ the corresponding team info so slash commands work
-// Once a bot scales beyond 1 process this approach has some limitations
-beepboop.on('add_resource', function (message) {
-  var slackTeamId = message.resource.SlackTeamID
-  console.log('team %s added, storing in botkit storage...', slackTeamId)
-
-  // Get a handle on the team's botkit worker/bot
-  var resourceId = Object.keys(beepboop.workers).filter(function (key) {
-    var entry = beepboop.workers[key]
-    console.log('entry: ', JSON.stringify(entry))
-    return entry.resource && entry.resource.SlackTeamID === slackTeamId
-  })[0]
-  if (!resourceId) {
-    console.log('Cannot find a matching resource for team %s', slackTeamId)
-    return
-  }
-
-  var resource = beepboop.workers[resourceId]
-  console.log('loading team info for new resource: ', resource.worker)
-  console.log('api: ', resource.worker.api)
-  // Fill botkit's storage w/ corresponding team info
-  resource.worker.api.team.info({}, function (err, response) {
-    if (err) {
-      console.log('Error getting team info for team %s: %s', slackTeamId, err.message)
-      return
-    }
-
-    controller.saveTeam(response.team, function (err, team) {
-      if (err) {
-        console.log('Error saving team info for team %s: %s', slackTeamId, err.message)
-        return
-      }
-
-      console.log('Saved the team information...')
-    })
-  })
-})
-
 controller.setupWebserver(PORT, function (err, webserver) {
   if (err) {
     console.error(err)
@@ -59,9 +21,30 @@ controller.setupWebserver(PORT, function (err, webserver) {
   controller.createWebhookEndpoints(webserver)
 })
 
-controller.on('slash_command', function (bot, message) {
-  console.log('slash command: ', message)
+// Send a message to the user that added the bot right after it connects
+beepboop.on('add_resource', function (message) {
+  var slackTeamId = message.resource.SlackTeamID
+  var slackUserId = message.resource.SlackUserID
 
+  // TODO: flip this bit once it's launched
+  if (!message.IsNew && slackUserId) {
+    var bot = beepboop.botByTeamId(slackTeamId)
+    if (!bot) {
+      return console.log('Error looking up botkit bot for team %s', slackTeamId)
+    }
+
+    bot.startPrivateConversation({user: slackUserId}, function (err, convo) {
+      if (err) {
+        return console.log(err)
+      }
+
+      convo.say('I am a bot that has just joined your team')
+      convo.say('You must now /invite me to a channel so that I can be of use!')
+    })
+  }
+})
+
+controller.on('slash_command', function (bot, message) {
   switch (message.command) {
     case '/beepboop':
       var response = 'boopbeep'
