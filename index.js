@@ -17,7 +17,8 @@ beepboop.on('add_resource', function (message) {
 
   // Get a handle on the team's botkit worker/bot
   var resource = Object.keys(beepboop.workers).filter(function (entry) {
-    return entry.resource.SlackTeamID === slackTeamId
+    console.log('resource entry: ', entry)
+    return entry.resource && entry.resource.SlackTeamID === slackTeamId
   })[0]
   if (!resource) {
     console.log('Cannot find a matching resource for team %s', slackTeamId)
