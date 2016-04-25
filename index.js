@@ -23,14 +23,19 @@ beepboop.on('add_resource', function (message) {
 
   // Fill botkit's storage w/ corresponding team info
   resource.worker.api.team.info({}, function (err, response) {
+    if (err) {
+      console.log('Error getting team info for team %s: %s', slackTeamId, err.message)
+      return
+    }
+
     controller.saveTeam(response.team, function (err, team) {
       if (err) {
-        console.log('Error getting team info for team %s: %s', slackTeamId, err.message)
+        console.log('Error saving team info for team %s: %s', slackTeamId, err.message)
         return
       }
 
-      console.log("Saved the team information...")
-    )
+      console.log('Saved the team information...')
+    })
   })
 })
 
