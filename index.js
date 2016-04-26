@@ -1,4 +1,5 @@
 var botkit = require('botkit')
+var logger = require('morgan')
 
 // Beep Boop specifies the port you should listen on default to 8080 for local dev
 var PORT = process.env.PORT || 8080
@@ -22,6 +23,7 @@ controller.setupWebserver(PORT, function (err, webserver) {
     process.exit(1)
   }
 
+  webserver.use(logger('tiny'))
   // Setup our slash command webhook endpoints
   controller.createWebhookEndpoints(webserver)
 })
