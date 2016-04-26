@@ -38,13 +38,17 @@ controller.on('slash_command', function (bot, message) {
   }
 })
 
-controller.hears('hello', ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
-  bot.reply(message, 'hi!')
+controller.hears(['hello', 'hi'], ['direct_message', 'direct_mention', 'mention'], function (bot, message) {
+  bot.reply(message, 'Hola!')
 })
 
 // Need to populate team info for single team slack bot
 function populateTeamInfo (controller, token) {
-  var bot = controller.spawn({ token: token }).startRTM()
+  var bot = controller.spawn({ token: token }).startRTM(function (err, bot, payload) {
+    if (err) {
+      console.error(err)
+    }
+  })
 
   bot.api.team.info({}, function (err, res) {
     if (err) {
