@@ -1,13 +1,20 @@
 var botkit = require('botkit')
-var morgan = require('morgan')
 
-// default port to 8080 for local dev
+// Beep Boop specifies the port you should listen on default to 8080 for local dev
 var PORT = process.env.PORT || 8080
 
 var controller = botkit.slackbot()
-var beepboop = require('beepboop-botkit').start(controller, {
-  debug: true
-})
+
+// Detect if we're running in single-team of multi-team mode
+// realistically you probably know which one of these approaches you need
+if (process.env.SLACK_TOKEN) {
+  // single team mode
+  // botkit depends on team info being populated in it's storage
+  populateTeamInfo(controller, process.env.SLACK_TOKEN)
+} else {
+  // multi-team mode
+  require('beepboop-botkit').start(controller, { debug: true })
+}
 
 controller.setupWebserver(PORT, function (err, webserver) {
   if (err) {
@@ -15,45 +22,35 @@ controller.setupWebserver(PORT, function (err, webserver) {
     process.exit(1)
   }
 
-  // Add an http logger
-  webserver.use(morgan('dev'))
   // Setup our slash command webhook endpoints
   controller.createWebhookEndpoints(webserver)
-})
-
-// Send a message to the user that added the bot right after it connects
-beepboop.on('add_resource', function (message) {
-  var slackTeamId = message.resource.SlackTeamID
-  var slackUserId = message.resource.SlackUserID
-
-  // TODO: flip this bit once it's launched
-  if (!message.IsNew && slackUserId) {
-    var bot = beepboop.botByTeamId(slackTeamId)
-    if (!bot) {
-      return console.log('Error looking up botkit bot for team %s', slackTeamId)
-    }
-
-    bot.startPrivateConversation({user: slackUserId}, function (err, convo) {
-      if (err) {
-        return console.log(err)
-      }
-
-      convo.next()
-      convo.say('I am a bot that has just joined your team')
-      convo.say('You must now /invite me to a channel so that I can be of use!')
-      convo.next()
-    })
-  }
 })
 
 controller.on('slash_command', function (bot, message) {
   switch (message.command) {
     case '/beepboop':
-      var response = 'boopbeep'
-
-      bot.replyPublic(message, response)
+      bot.replyPrivate(message, 'boopbeep')
       break
     default:
       bot.replyPrivate(message, "Sorry, I'm not sure what that command is")
   }
 })
+
+// Need to populate team info for single team slack bot
+function populateTeamInfo (controller, token) {
+  // this assumes we're not starting an RTM - just setting up the bot for api calls
+  // if you're using an rtm, you would call startRTM() here as well
+  var bot = controller.spawn({ token: token })
+
+  bot.api.team.info({}, function (err, res) {
+    if (err) {
+      return console.error(err)
+    }
+
+    controller.storage.teams.save({id: res.team.id}, (err) => {
+      if (err) {
+        console.error(err)
+      }
+    })
+  })
+}
